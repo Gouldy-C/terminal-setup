@@ -1,4 +1,4 @@
-# Bash Profile - PowerShell-setup counterpart
+# Bash Profile - terminal-setup counterpart
 # Mirrors the look and feel of the PowerShell profile
 #
 # DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.
@@ -15,7 +15,7 @@ _bashrc_config="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
 # Defaults (override via profile.bash)
 # -----------------------------------------------------------------------------
 debug="${debug_Override:-false}"
-repo_root="${repo_root_Override:-https://raw.githubusercontent.com/ChristianG-Solideon/Powershell-setup/main}"
+repo_root="${repo_root_Override:-https://raw.githubusercontent.com/Gouldy-C/terminal-setup/main}"
 timeFilePath="${timeFilePath_Override:-$_bashrc_config/LastExecutionTime.txt}"
 updateInterval="${updateInterval_Override:-7}"
 

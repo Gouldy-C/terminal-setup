@@ -87,7 +87,7 @@ if (-not (Test-Path -Path $profileDir)) {
 }
 
 # Repo URLs (when run via irm | iex, $PSScriptRoot is empty - use remote)
-$repoRawBase = "https://raw.githubusercontent.com/ChristianG-Solideon/Powershell-setup/main"
+$repoRawBase = "https://raw.githubusercontent.com/Gouldy-C/terminal-setup/main"
 $profileUrlFromRepo = "$repoRawBase/windows/Microsoft.PowerShell_profile.ps1"
 $profileUrlFallback = "https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1"
 $profileNote = "If you want personal changes, use [$profileDir\Profile.ps1] - the installed profile uses a hash-based updater that overwrites direct edits."

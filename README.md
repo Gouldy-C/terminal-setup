@@ -1,8 +1,21 @@
-# PowerShell Profile Configuration
+# Terminal Setup
 
-A comprehensive PowerShell profile configuration that enhances your command-line experience with modern tools, productivity shortcuts, and beautiful theming. Based on Chris Titus Tech's PowerShell profile with customizations and improvements.
+Cross-platform terminal configuration for **Windows (PowerShell)** and **Linux / macOS / WSL (Bash)** — modern tools, productivity shortcuts, and a shared Oh My Posh theme.
 
-**Bash users**: A bash counterpart is included so your Linux/macOS/WSL terminal can match the same look and feel. See [Bash Installation](#-bash-installation) below.
+## About This Project
+
+This repository is an **expansion of [Chris Titus Tech's PowerShell profile](https://github.com/ChrisTitusTech/powershell-profile)**. Chris's original work established the foundation: hash-based profile auto-updates, the override system, Oh My Posh integration, productivity aliases, and a polished day-to-day shell experience on Windows.
+
+**terminal-setup** builds on that foundation with:
+
+- **Cross-platform support** — a Bash counterpart (`linux/bashrc`) so Linux, macOS, and WSL can share the same look, feel, and workflow
+- **Unified installers** — `windows/setup.ps1` and `linux/setup.sh` for one-command setup on each platform
+- **Shared theming** — a single Oh My Posh theme (`my_layout.omp.json`) used by both PowerShell and Bash
+- **Customizations and additions** — platform-specific tooling, setup scripts, and ongoing improvements while preserving Chris's core patterns (overrides, auto-update, debug mode)
+
+If you find this useful, please also check out and support the [original project by Chris Titus Tech](https://github.com/ChrisTitusTech/powershell-profile).
+
+**Bash users**: See [Quick Installation](#-quick-installation) below for Linux/macOS/WSL setup.
 
 ## 📁 Project Structure
 
@@ -25,12 +38,12 @@ A comprehensive PowerShell profile configuration that enhances your command-line
 
 **Windows (PowerShell as Administrator):**
 ```powershell
-irm "https://github.com/ChristianG-Solideon/Powershell-setup/raw/main/windows/setup.ps1" | iex
+irm "https://github.com/Gouldy-C/terminal-setup/raw/main/windows/setup.ps1" | iex
 ```
 
 **Linux / macOS / WSL:**
 ```bash
-curl -sL "https://github.com/ChristianG-Solideon/Powershell-setup/raw/main/linux/setup.sh" | bash
+curl -sL "https://github.com/Gouldy-C/terminal-setup/raw/main/linux/setup.sh" | bash
 ```
 
 ---
@@ -48,7 +61,7 @@ From the repo root, run:
 **Linux / macOS / WSL**
 
 ```bash
-git clone <your-repo-url> powershell-setup && cd powershell-setup
+git clone <your-repo-url> terminal-setup && cd terminal-setup
 chmod +x linux/setup.sh && ./linux/setup.sh
 ```
 
@@ -221,23 +234,29 @@ In debug mode:
 
 ## 🤝 Contributing
 
-This profile is based on Chris Titus Tech's PowerShell profile. To contribute:
+Contributions are welcome. This project extends Chris Titus Tech's PowerShell profile — please be respectful of the upstream work when proposing changes.
 
 1. Fork the repository
 2. Make your changes
-3. Test thoroughly
+3. Test thoroughly on the platform(s) you changed (Windows and/or Linux/macOS/WSL)
 4. Submit a pull request
 
 ## 📄 License
 
-This project is open source. Please refer to the original Chris Titus Tech repository for licensing information.
+This project is open source. The PowerShell profile derives from [Chris Titus Tech's powershell-profile](https://github.com/ChrisTitusTech/powershell-profile); refer to that repository for original licensing information.
 
-## 🙏 Credits
+## 🙏 Credits & Acknowledgments
 
-- **Chris Titus Tech** - Original PowerShell profile creator
-- **Oh My Posh** - Terminal prompt theming
-- **Terminal Icons** - File/folder icons
-- **Zoxide** - Smart directory jumping
+### Chris Titus Tech
+
+This project would not exist without **[Chris Titus Tech](https://github.com/ChrisTitusTech)** and his [PowerShell profile](https://github.com/ChrisTitusTech/powershell-profile). The Windows profile, override architecture, auto-update approach, and much of the command surface area are based on his work. **terminal-setup** is intended as a respectful expansion — not a replacement — of that project.
+
+### Other Projects
+
+- **[Oh My Posh](https://ohmyposh.dev/)** — Terminal prompt theming
+- **[Terminal Icons](https://github.com/devblackops/Terminal-Icons)** — File and folder icons (PowerShell)
+- **[Zoxide](https://github.com/ajeetdsouza/zoxide)** — Smart directory jumping
+- **[eza](https://github.com/eza-community/eza)** — Modern `ls` replacement with icons (Bash)
 
 ---
 

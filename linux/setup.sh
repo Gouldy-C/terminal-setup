@@ -2,12 +2,12 @@
 # Bash setup script - installs profile, Oh My Posh, Nerd Fonts, zoxide, and utilities
 # Supports Linux, macOS, and WSL
 #
-# Run from GitHub: curl -sL "https://github.com/ChristianG-Solideon/Powershell-setup/raw/main/linux/setup.sh" | bash
+# Run from GitHub: curl -sL "https://github.com/Gouldy-C/terminal-setup/raw/main/linux/setup.sh" | bash
 
 set -e
 
 # Repo URL for remote mode (when run via curl | bash). Override with first arg if needed.
-REPO_URL="${1:-https://github.com/ChristianG-Solideon/Powershell-setup}"
+REPO_URL="${1:-https://github.com/Gouldy-C/terminal-setup}"
 REPO_RAW_BASE=""
 if [[ -n "$REPO_URL" ]]; then
     # Convert github.com/owner/repo to raw.githubusercontent.com/owner/repo/main
@@ -332,7 +332,7 @@ PROFILE_EOF
     local source_line="[[ -f \"$bashrc_dest\" ]] && source \"$bashrc_dest\""
     if ! grep -qF "$bashrc_dest" "$HOME/.bashrc" 2>/dev/null; then
         echo "" >> "$HOME/.bashrc"
-        echo "# PowerShell-setup bash profile" >> "$HOME/.bashrc"
+        echo "# terminal-setup bash profile" >> "$HOME/.bashrc"
         echo "$source_line" >> "$HOME/.bashrc"
         log_info "Added profile to ~/.bashrc"
     else
