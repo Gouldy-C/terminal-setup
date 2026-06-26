@@ -1,0 +1,267 @@
+# PowerShell setup script - installs profile, Oh My Posh, Nerd Fonts, Chocolatey, and utilities
+
+#region Prerequisites
+
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "Please run this script as an Administrator!"
+    exit 1
+}
+
+function Test-InternetConnection {
+    try {
+        Test-Connection -ComputerName www.google.com -Count 1 -ErrorAction Stop | Out-Null
+        return $true
+    }
+    catch {
+        Write-Warning "Internet connection is required but not available. Please check your connection."
+        return $false
+    }
+}
+
+if (-not (Test-InternetConnection)) {
+    exit 1
+}
+
+#endregion
+
+#region Helper Functions
+
+function Get-ProfileDir {
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        return "$env:USERPROFILE\Documents\PowerShell"
+    }
+    if ($PSVersionTable.PSEdition -eq "Desktop") {
+        return "$env:USERPROFILE\Documents\WindowsPowerShell"
+    }
+    Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
+    exit 1
+}
+
+function Install-NerdFonts {
+    param(
+        [string]$FontName = "CascadiaCode",
+        [string]$FontDisplayName = "CaskaydiaCove NF",
+        [string]$Version = "3.2.1"
+    )
+
+    try {
+        Add-Type -AssemblyName System.Drawing
+        $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
+        if ($fontFamilies -contains $FontDisplayName) {
+            Write-Host "Font $FontDisplayName already installed."
+            return $true
+        }
+
+        $fontZipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v$Version/$FontName.zip"
+        $zipFilePath = "$env:TEMP\$FontName.zip"
+        $extractPath = "$env:TEMP\$FontName"
+
+        Invoke-WebRequest -Uri $fontZipUrl -OutFile $zipFilePath -UseBasicParsing
+        Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+
+        $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
+        Get-ChildItem -Path $extractPath -Recurse -Filter "*.ttf" | ForEach-Object {
+            if (-not (Test-Path "C:\Windows\Fonts\$($_.Name)")) {
+                $destination.CopyHere($_.FullName, 0x10)
+            }
+        }
+
+        Remove-Item -Path $extractPath -Recurse -Force
+        Remove-Item -Path $zipFilePath -Force
+        Write-Host "Installed font: $FontDisplayName"
+        return $true
+    }
+    catch {
+        Write-Error "Failed to install $FontDisplayName font. Error: $_"
+        return $false
+    }
+}
+
+#endregion
+
+#region Profile Setup
+
+$profileDir = Get-ProfileDir
+if (-not (Test-Path -Path $profileDir)) {
+    New-Item -Path $profileDir -ItemType Directory -Force | Out-Null
+}
+
+# Repo URLs (when run via irm | iex, $PSScriptRoot is empty - use remote)
+$repoRawBase = "https://raw.githubusercontent.com/ChristianG-Solideon/Powershell-setup/main"
+$profileUrlFromRepo = "$repoRawBase/windows/Microsoft.PowerShell_profile.ps1"
+$profileUrlFallback = "https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1"
+$profileNote = "If you want personal changes, use [$profileDir\Profile.ps1] - the installed profile uses a hash-based updater that overwrites direct edits."
+
+# When run via "irm | iex", there is no script file - use remote downloads only
+# $MyInvocation.MyCommand.Path is empty when piped to iex (not $PSScriptRoot)
+$profileSource = $null
+$repoRoot = $null
+$hasScriptPath = $MyInvocation.MyCommand.Path -and ([string]::IsNullOrWhiteSpace($MyInvocation.MyCommand.Path) -eq $false)
+if ($hasScriptPath) {
+    try {
+        $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent -ErrorAction Stop
+        $profilePath = Join-Path -Path $scriptDir -ChildPath "Microsoft.PowerShell_profile.ps1"
+        if (Test-Path -LiteralPath $profilePath -ErrorAction SilentlyContinue) {
+            $profileSource = $profilePath
+            $repoRoot = Split-Path -Path $scriptDir -Parent -ErrorAction Stop
+        }
+    }
+    catch {
+        $profileSource = $null
+        $repoRoot = $null
+    }
+}
+
+$useLocalProfile = $null -ne $profileSource -and (Test-Path -LiteralPath $profileSource)
+
+if (-not (Test-Path -Path $PROFILE -PathType Leaf)) {
+    try {
+        if ($useLocalProfile) {
+            Copy-Item -Path $profileSource -Destination $PROFILE -Force
+            Write-Host "Profile created at [$PROFILE] (from this repo)"
+        }
+        else {
+            try {
+                Invoke-RestMethod $profileUrlFromRepo -OutFile $PROFILE
+                Write-Host "Profile created at [$PROFILE] (from this repo)"
+            }
+            catch {
+                Invoke-RestMethod $profileUrlFallback -OutFile $PROFILE
+                Write-Host "Profile created at [$PROFILE] (from Chris Titus - repo unavailable)"
+            }
+        }
+        Write-Host "NOTE: $profileNote"
+    }
+    catch {
+        Write-Error "Failed to create profile. Error: $_"
+    }
+}
+else {
+    try {
+        $backupPath = Join-Path (Split-Path $PROFILE) "oldprofile.ps1"
+        Move-Item -Path $PROFILE -Destination $backupPath -Force
+        if ($useLocalProfile) {
+            Copy-Item -Path $profileSource -Destination $PROFILE -Force
+            Write-Host "Profile updated at [$PROFILE] from this repo. Backup saved to [$backupPath]"
+        }
+        else {
+            try {
+                Invoke-RestMethod $profileUrlFromRepo -OutFile $PROFILE
+                Write-Host "Profile updated at [$PROFILE] from this repo. Backup saved to [$backupPath]"
+            }
+            catch {
+                Invoke-RestMethod $profileUrlFallback -OutFile $PROFILE
+                Write-Host "Profile updated at [$PROFILE] from Chris Titus. Backup saved to [$backupPath]"
+            }
+        }
+        Write-Host "NOTE: $profileNote"
+    }
+    catch {
+        Write-Error "Failed to backup and update profile. Error: $_"
+    }
+}
+
+# Copy my_layout.omp.json from repo (cobalt2 fallback if not found)
+$themeDest = Join-Path $profileDir "my_layout.omp.json"
+$themeSrc = if ($repoRoot) { Join-Path $repoRoot "my_layout.omp.json" } else { $null }
+if ($themeSrc -and (Test-Path $themeSrc)) {
+    Copy-Item -Path $themeSrc -Destination $themeDest -Force
+    Write-Host "Custom theme (my_layout.omp.json) copied to profile directory."
+}
+else {
+    try {
+        Invoke-RestMethod -Uri "$repoRawBase/my_layout.omp.json" -OutFile $themeDest
+        Write-Host "Custom theme (my_layout.omp.json) downloaded to profile directory."
+    }
+    catch {
+        Write-Warning "my_layout.omp.json not found in repo, using cobalt2 fallback"
+        try {
+            Invoke-RestMethod -Uri "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json" -OutFile $themeDest
+            Write-Host "Theme (cobalt2) downloaded to profile directory."
+        }
+        catch {
+            Write-Error "Failed to download theme. Error: $_"
+        }
+    }
+}
+
+# Copy profile.ps1 template if it doesn't exist
+$profilePs1Dest = Join-Path $profileDir "Profile.ps1"
+if (-not (Test-Path $profilePs1Dest)) {
+    $profilePs1Src = if ($profileSource) { Join-Path (Split-Path $profileSource -Parent) "profile.ps1" } else { $null }
+    if ($profilePs1Src -and (Test-Path $profilePs1Src)) {
+        Copy-Item -Path $profilePs1Src -Destination $profilePs1Dest -Force
+        Write-Host "Profile.ps1 template copied. Edit it for custom theme and overrides."
+    }
+    else {
+        try {
+            Invoke-RestMethod -Uri "$repoRawBase/windows/profile.ps1" -OutFile $profilePs1Dest
+            Write-Host "Profile.ps1 template downloaded. Edit it for custom theme and overrides."
+        }
+        catch {
+            Write-Warning "Could not download profile.ps1 template"
+        }
+    }
+}
+
+#endregion
+
+#region Package Installs
+
+try {
+    winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
+}
+catch {
+    Write-Error "Failed to install Oh My Posh. Error: $_"
+}
+
+try {
+    winget install -e --accept-source-agreements --accept-package-agreements ajeetdsouza.zoxide
+    Write-Host "zoxide installed."
+}
+catch {
+    Write-Error "Failed to install zoxide. Error: $_"
+}
+
+#endregion
+
+#region Fonts & Themes
+
+$fontInstalled = Install-NerdFonts -FontName "CascadiaCode" -FontDisplayName "CaskaydiaCove NF"
+# Theme: my_layout.omp.json is copied from repo above (no cobalt2)
+
+#endregion
+
+#region Chocolatey
+
+try {
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    $chocoScript = (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
+    Invoke-Expression $chocoScript
+    Write-Host "Chocolatey installed."
+}
+catch {
+    Write-Error "Failed to install Chocolatey. Error: $_"
+}
+
+#endregion
+
+#region PowerShell Modules
+
+try {
+    Install-Module -Name Terminal-Icons -Repository PSGallery -Force -Scope CurrentUser
+    Write-Host "Terminal-Icons module installed."
+}
+catch {
+    Write-Error "Failed to install Terminal-Icons module. Error: $_"
+}
+
+#endregion
+
+#region Summary
+
+Write-Host ""
+Write-Host "Setup complete. Restart your PowerShell session to apply changes."
+
+#endregion
