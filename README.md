@@ -68,7 +68,14 @@ chmod +x linux/setup.sh && ./linux/setup.sh
 Or from an existing clone:
 
 ```bash
+chmod +x linux/setup.sh   # only needed once if you get "Permission denied"
 ./linux/setup.sh
+```
+
+You can also run it without the execute bit:
+
+```bash
+bash linux/setup.sh
 ```
 
 The script installs Oh My Posh, zoxide, eza (ls with icons), Nerd Fonts, and configures your bash profile. Restart your terminal or run `source ~/.bashrc`.
