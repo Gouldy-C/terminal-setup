@@ -1,0 +1,87 @@
+{
+  "versions": {
+    "omp": "v31.2.1",
+    "zoxide": "v0.10.0",
+    "eza": "v0.23.5",
+    "font": "v3.5.1",
+    "psreadline": "2.4.5"
+  },
+  "platforms": {
+    "linux-x86_64": {
+      "oh-my-posh": {
+        "url": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v31.2.1/posh-linux-amd64",
+        "sha256": "7764f2ba056cdfa7194562239cf5c37bdc5518217db5009defb00ce8cd1ef752"
+      },
+      "zoxide": {
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz",
+        "sha256": "2d93385b99f3e82cf2701609a1bffcad863fbeb75aa3fe7eb6be4d29be68b1ae",
+        "member": "zoxide"
+      },
+      "eza": {
+        "url": "https://github.com/eza-community/eza/releases/download/v0.23.5/eza_x86_64-unknown-linux-musl.tar.gz",
+        "sha256": "e06eebab74b73d6b7d51a796a353824b001bea82df077706382e100815d28904",
+        "member": "eza"
+      }
+    },
+    "linux-aarch64": {
+      "oh-my-posh": {
+        "url": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v31.2.1/posh-linux-arm64",
+        "sha256": "8aa3b239d8a7a4daff9da201f8015bc36c7428d79d0fa7019ed55c4edb439072"
+      },
+      "zoxide": {
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-aarch64-unknown-linux-musl.tar.gz",
+        "sha256": "f1f16c5d6298d63dee467eedea1cdcd8490e43e493bea43acd416dc9033ef641",
+        "member": "zoxide"
+      },
+      "eza": {
+        "url": "https://github.com/eza-community/eza/releases/download/v0.23.5/eza_aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "40b87ae8628aa2ff0f0d2dc24ab52f689631366385c3da630bae745671fd71ec",
+        "member": "eza"
+      }
+    },
+    "windows-x86_64": {
+      "oh-my-posh": {
+        "url": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v31.2.1/posh-windows-amd64.exe",
+        "sha256": "13c8b6142f71323f8937508388e57e055140d30bcd781599b1d30b26e32d6dd0"
+      },
+      "zoxide": {
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-pc-windows-msvc.zip",
+        "sha256": "f465ae548f8754c8e7edbc60b45fbf58c92bfe123db83d790252d6810fa5daf1",
+        "member": "zoxide.exe"
+      },
+      "eza": {
+        "url": "https://github.com/eza-community/eza/releases/download/v0.23.5/eza.exe_x86_64-pc-windows-gnu.zip",
+        "sha256": "c830638c844a5b89d39ba662b5549903a71fa539018e813880f5b8afa77bac2e",
+        "member": "eza.exe"
+      }
+    },
+    "windows-aarch64": {
+      "oh-my-posh": {
+        "url": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v31.2.1/posh-windows-arm64.exe",
+        "sha256": "946da489c92e4c7034de024230900126d0743e3ec96742508cb4a48d0121ae1d"
+      },
+      "zoxide": {
+        "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-aarch64-pc-windows-msvc.zip",
+        "sha256": "b0e6eb62b11ebf168d5c65c5d23c635e81848cc4a88ae6b9caee64cf1e35d12b",
+        "member": "zoxide.exe"
+      },
+      "eza": {
+        "url": "https://github.com/eza-community/eza/releases/download/v0.23.5/eza.exe_x86_64-pc-windows-gnu.zip",
+        "sha256": "c830638c844a5b89d39ba662b5549903a71fa539018e813880f5b8afa77bac2e",
+        "member": "eza.exe"
+      }
+    }
+  },
+  "font": {
+    "url": "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/CascadiaCode.zip",
+    "sha256": "1298bf92698afa06185cf1d05e6ae05f2d8a1e8c3cb45ddf4c3035168ab342a1",
+    "member": "CaskaydiaCoveNerdFontMono-Regular.ttf"
+  },
+  "powershell_modules": {
+    "PSReadLine": {
+      "version": "2.4.5",
+      "url": "https://www.powershellgallery.com/api/v2/package/PSReadLine/2.4.5",
+      "sha256": "cb9390e9733208456c234a7971d1ec4a917886c239502aab68f4b71aa4bba235"
+    }
+  }
+}
