@@ -1,11 +1,6 @@
-$script:debug_Override = $false
-function Get-Theme_Override {
-    $ompConfigPath = Join-Path (Split-Path $PROFILE) "my_layout.omp.json"
-    if (-not (Test-Path $ompConfigPath)) {
-        Write-Warning "Oh My Posh configuration file not found at $ompConfigPath."
-        return
-    }
-
-    $ompInit = oh-my-posh init pwsh --config $ompConfigPath
-    Invoke-Expression $ompInit
-}
+# Your file: created once, never overwritten by setup or updates.
+# This runs once after built-in shortcuts and before prompt initialization.
+# $env:EDITOR = 'code'
+# function gs { git status --short @args }
+# $env:TERMINAL_SETUP_AUTO_UPDATE = '0'
+# $env:OMP_CONFIG = Join-Path $TerminalSetupRoot 'user\my_layout.omp.json'
