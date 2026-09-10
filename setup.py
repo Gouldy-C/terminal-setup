@@ -24,10 +24,14 @@ SOURCE = Path(__file__).resolve().parent
 
 def run(args, cwd=None, timeout=90, data=None):
     options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if WINDOWS else {'start_new_session': True}
+    environment = dict(os.environ, GIT_TERMINAL_PROMPT='0', GIT_CONFIG_NOSYSTEM='1')
+    if Path(str(args[0])).stem.lower() in ('powershell', 'pwsh'):
+        # A Core parent's module path can make Windows PowerShell load incompatible built-ins.
+        environment.pop('PSModulePath', None)
     with subprocess.Popen([str(a) for a in args], cwd=cwd,
                           stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          env=dict(os.environ, GIT_TERMINAL_PROMPT='0', GIT_CONFIG_NOSYSTEM='1'),
+                          env=environment,
                           **options) as process:
         try:
             output, errors = process.communicate(data, timeout=timeout)

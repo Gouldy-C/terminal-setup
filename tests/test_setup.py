@@ -32,6 +32,7 @@ class InstallationTests(unittest.TestCase):
                         TERMINAL_SETUP_HOME=str(self.root), TERMINAL_SETUP_AUTO_UPDATE='0',
                         XDG_CACHE_HOME=str(self.home / 'cache'),
                         GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull)
+        self.env.pop('PSModulePath', None)
         self.profile = self.home / 'Documents/PowerShell/Microsoft.PowerShell_profile.ps1'
         self.git('init', '-b', 'main')
         self.commit('initial')

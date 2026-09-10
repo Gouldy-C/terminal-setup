@@ -18,6 +18,8 @@ os.environ.update(HOME=str(home), USERPROFILE=str(home), LOCALAPPDATA=str(home /
                   XDG_CACHE_HOME=str(home / 'cache'),
                   TERMINAL_SETUP_HOME=str(home / 'terminal-setup'), TERMINAL_SETUP_AUTO_UPDATE='0',
                   TERMINAL_SETUP_REPO=str(origin), GIT_CONFIG_GLOBAL=os.devnull)
+# Let each PowerShell edition construct its own standard module search path.
+os.environ.pop('PSModulePath', None)
 for args in [('init', '-b', 'main'), ('add', '.'),
              ('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'fixture')]:
     subprocess.run(['git', '-C', str(origin), *args], check=True)
