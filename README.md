@@ -70,7 +70,7 @@ When `main` points to a different commit, the updater:
 4. Downloads the pinned dependencies in `tools.json`, verifies SHA-256 checksums, and checks that the binaries run.
 5. Atomically switches the active release only after installation succeeds.
 
-Changes take effect in the **next terminal you open**, or after `reload_profile`. An update never rewrites the shell session you are currently using. A per-user OS lock prevents simultaneous updates and releases automatically if a process crashes.
+Changes take effect in the **next terminal you open**, or after `reload_profile` in Bash / `. reload_profile` in PowerShell. An update never rewrites the shell session you are currently using. A per-user OS lock prevents simultaneous updates and releases automatically if a process crashes.
 
 Network failures, invalid files, failed dependencies, and conflicting local edits leave the current release active. The next launch retries. A conflicting edit requires your decision; the updater will not silently discard it to force an update. Downloads and installation have timeouts; the whole candidate installation is limited to ten minutes.
 
@@ -123,18 +123,18 @@ Prefer `user/` for permanent changes. Direct edits inside an active release are 
 
 ### Migrating from the previous installer
 
-The old `linux/setup.sh` and `windows/setup.ps1` URLs remain compatibility launchers. Re-run installation once to move to this update system; the old updater cannot upgrade its own installation architecture.
+The old `linux/setup.sh` and `windows/setup.ps1` URLs remain compatibility launchers. Re-run installation once, or run `ts update` after the old updater downloads the transition profile, to move to this update system. The transition profile keeps your prompt and overrides usable without launching a nonexistent update engine; it explains the one-time migration instead of installing prerequisites during shell startup.
 
 Existing `~/.config/bash/profile.bash` (respecting `XDG_CONFIG_HOME`), PowerShell `profile.ps1`, and old custom theme files remain active. Old custom themes take priority over the repository theme; move your theme to `user/my_layout.omp.json` when convenient. `debug_Override` still disables launch checks. The old interval and raw-URL overrides are replaced by `settings.json`.
 
-A pristine legacy managed profile is backed up and replaced with a loader. If that managed profile has been edited, installation stops with its path **before overwriting it**. Move your additions into the personal override file, save the legacy file elsewhere, and retry. Arbitrary old executable profiles cannot safely be merged into this different architecture automatically.
+A pristine legacy managed profile, including the exact transition profile supplied by this release, is backed up and replaced with a loader. Startup changes are preflighted and restored if installation fails before activation. If that managed profile has been edited, installation stops with its path **before overwriting it**. Move your additions into the personal override file, save the legacy file elsewhere, and retry. Arbitrary old executable profiles cannot safely be merged into this different architecture automatically.
 
 ## Commands shared by both shells
 
 - `ts status`: show the installed commit, installation root, and settings.
 - `ts update`: check and install `main` now, with visible errors.
 - `ts rollback`: reactivate the previous release and disable automatic updates.
-- `ep`, `reload_profile`, `show_help`: edit overrides, reload, or show help.
+- `ep`, `show_help`: edit overrides or show help. Reload Bash with `reload_profile`; in PowerShell use `. reload_profile` (including the dot and space) so new functions and variables persist in your session.
 - `gs`, `ga`, `gc <message>`, `gpush`, `gpull`, `gcl`, `gcom <message>`, `lazyg <message>`: Git shortcuts.
 - `ls`, `la`, `ll`, `mkcd <dir>`, `nf <file>`, `ff <name>`, `docs`, `dtop`, `z <dir>`: files and navigation.
 - `pubip`, `sysinfo`, `cpy`, `pst`: system and clipboard helpers. Linux clipboard helpers require `wl-clipboard` or `xclip`.

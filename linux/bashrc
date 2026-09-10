@@ -1,17 +1,63 @@
+# terminal-setup transition-aware profile
 # Managed profile. Personal settings belong in terminal-setup/user/profile.bash.
 case $- in *i*) ;; *) return ;; esac
+[[ ${_TERMINAL_SETUP_LEGACY_LOADED:-} == 1 && ! -f "${TERMINAL_SETUP_HOME:-}/current.json" ]] && return
 _ts_release="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="$_ts_release/.tools:$HOME/.local/bin:$PATH"
+# The previous installer downloads this file directly into ~/.config/bash.
+# Keep that layout usable until its owner runs the one-time migration.
+_ts_legacy_mode=0
+if [[ ! -f "$_ts_release/setup.py" ]]; then
+    _ts_legacy_mode=1
+    export TERMINAL_SETUP_HOME="${TERMINAL_SETUP_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/terminal-setup}"
+    if [[ -f "$TERMINAL_SETUP_HOME/load.bash" && -f "$TERMINAL_SETUP_HOME/current.json" ]]; then
+        source "$TERMINAL_SETUP_HOME/load.bash"
+        return
+    fi
+    _TERMINAL_SETUP_LEGACY_LOADED=1
+fi
+export PATH="$_ts_release/.tools:$HOME/.local/bin:$HOME/bin:$PATH"
 
 terminal_setup() {
+    if [[ "$_ts_legacy_mode" == 1 ]]; then
+        case "${1:-status}" in
+            update|install)
+                shift
+                local installer result
+                installer=$(mktemp) || return
+                if curl -fsSL --connect-timeout 10 --max-time 60 https://raw.githubusercontent.com/Gouldy-C/terminal-setup/main/install.sh -o "$installer"; then
+                    bash "$installer" "$@"
+                    result=$?
+                else
+                    result=$?
+                fi
+                rm -f -- "$installer"
+                return "$result"
+                ;;
+            launch) return 0 ;;
+            *) printf '%s\n' 'Legacy terminal setup is active. Run ts update to migrate; your customizations will be retained.'; return 0 ;;
+        esac
+    fi
     local python_exe
     python_exe=$(command -v python3) || return
     "$python_exe" "$_ts_release/setup.py" "$@" --root "$TERMINAL_SETUP_HOME"
 }
 ts() { terminal_setup "$@"; }
 update_bashrc() { terminal_setup update; }
-reload_profile() { unset _TERMINAL_SETUP_LOADED; source "$TERMINAL_SETUP_HOME/load.bash"; }
-ep() { ${EDITOR:-vi} "$TERMINAL_SETUP_HOME/user/profile.bash"; }
+reload_profile() {
+    unset _TERMINAL_SETUP_LOADED _TERMINAL_SETUP_LEGACY_LOADED
+    if [[ -f "$TERMINAL_SETUP_HOME/load.bash" ]]; then
+        source "$TERMINAL_SETUP_HOME/load.bash"
+    else
+        source "$HOME/.bashrc"
+    fi
+}
+ep() {
+    if [[ "$_ts_legacy_mode" == 1 ]]; then
+        ${EDITOR:-vi} "${XDG_CONFIG_HOME:-$HOME/.config}/bash/profile.bash"
+    else
+        ${EDITOR:-vi} "$TERMINAL_SETUP_HOME/user/profile.bash"
+    fi
+}
 alias gs='git status'
 alias ga='git add .'
 gc() { git commit -m "$*"; }
@@ -80,6 +126,9 @@ if command -v oh-my-posh >/dev/null 2>&1; then
 fi
 if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init bash --cmd z)"
+fi
+if [[ "$_ts_legacy_mode" == 1 ]]; then
+    printf '%s\n' 'Terminal setup: run ts update once to migrate to safe automatic updates.' >&2
 fi
 if [[ "${debug_Override:-false}" != true && "${TERMINAL_SETUP_AUTO_UPDATE:-1}" != 0 ]]; then
     # launch detaches the worker itself, avoiding shell job notifications.
