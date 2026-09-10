@@ -80,7 +80,8 @@ class ReviewFixTests(unittest.TestCase):
         self.assertEqual((copied / '.git/config').read_bytes(), (nested / '.git/config').read_bytes())
         if linked:
             self.assertTrue((copied / 'external-link').is_symlink())
-            self.assertEqual(os.readlink(copied / 'external-link'), str(outside))
+            self.assertEqual(os.readlink(copied / 'external-link'), os.readlink(nested / 'external-link'))
+            self.assertEqual((copied / 'external-link').resolve(), outside.resolve())
             self.assertEqual((outside / 'untouched').read_text(), 'changed outside data')
 
     @unittest.skipIf(os.name == 'nt', 'Legacy Bash symlink migration')
@@ -158,7 +159,7 @@ class ReviewFixTests(unittest.TestCase):
         real_write = installer.atomic_write
 
         def concurrent_edit_then_failure(path, data):
-            if path == second:
+            if path == second.resolve():
                 first.write_text('latest user edit\n')
                 raise OSError('simulated failure')
             return real_write(path, data)
@@ -175,7 +176,7 @@ class ReviewFixTests(unittest.TestCase):
         digest = hashlib.sha256(pristine.encode()).hexdigest()
         hook = '# terminal-setup managed loader\n# loader\n# end terminal-setup managed loader'
         installer.append_hook(self.root, profile, hook, transition_hash=digest)
-        self.assertEqual(profile.read_text(), '\n' + hook + '\n')
+        self.assertEqual(profile.read_text(encoding='utf-8-sig'), '\n' + hook + '\n')
         self.assertTrue(list((self.root / 'backups').glob('*/*')))
         edited = pristine + '# personal addition\n'
         profile.write_text(edited)
